@@ -23,4 +23,9 @@ docker run -d \
   -p "$PORT:$PORT" \
   "$IMAGE"
 
+# Wait a bit and show logs
+sleep 5
+echo "📜 Container logs:"
+docker logs "$APP_NAME" || true
+
 echo "✅ New version started for $APP_NAME"
