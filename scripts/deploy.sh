@@ -2,7 +2,7 @@
 set -e
 
 APP_NAME="bronew"
-IMAGE="ghcr.io/JoeCelaster/bronew:latest"
+IMAGE="ghcr.io/joecelaster/bronew:latest"
 PORT="3000"
 
 echo "🚀 Deploying $APP_NAME..."
