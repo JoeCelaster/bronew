@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 
 # Install deps
@@ -9,15 +9,19 @@ RUN npm install
 # Copy source
 COPY . .
 
-# (Optional) Build step if user has one
-# RUN npm run build
+# Build Next.js app
+RUN npm run build
 
 # Runtime stage
-FROM node:18-alpine
+FROM node:20-alpine
 WORKDIR /app
 
-# Copy from build stage
-COPY --from=build /app /app
+# Copy only needed files
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/.next ./.next
+COPY --from=build /app/public ./public
+COPY --from=build /app/next.config.* ./ 2>/dev/null || true
 
 EXPOSE 3000
 
