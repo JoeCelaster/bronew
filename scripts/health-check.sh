@@ -2,7 +2,7 @@
 set -e
 
 PORT="3000"
-HEALTH_URL="http://localhost:$PORT/health"
+HEALTH_URL="http://localhost:$PORT/"
 
 echo "🩺 Running health check at $HEALTH_URL ..."
 
