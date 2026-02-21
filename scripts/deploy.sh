@@ -7,25 +7,24 @@ PORT="3000"
 
 echo "🚀 Deploying $APP_NAME..."
 
-# Pull latest image
 docker pull "$IMAGE"
 
-# Save current image as previous (best-effort)
-docker tag "$IMAGE" bronew:previous || true
-
-# Stop and remove existing container (if any)
 docker stop "$APP_NAME" || true
 docker rm "$APP_NAME" || true
 
-# Run the new container
+echo "▶️ Starting container..."
 docker run -d \
   --name "$APP_NAME" \
   -p "$PORT:$PORT" \
   "$IMAGE"
 
-# Wait a bit and show logs
+echo "⏳ Waiting 5s for container..."
 sleep 5
+
+echo "📦 Docker ps:"
+docker ps -a
+
 echo "📜 Container logs:"
 docker logs "$APP_NAME" || true
 
-echo "✅ New version started for $APP_NAME"
+echo "✅ Deploy step finished"
