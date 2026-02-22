@@ -16,13 +16,12 @@ RUN npm run build
 FROM node:20-alpine
 WORKDIR /app
 
-# Copy only needed files
+# Copy only what we need
 COPY --from=build /app/package*.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/public ./public
-COPY --from=build /app/next.config.* ./ 2>/dev/null || true
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start"]
