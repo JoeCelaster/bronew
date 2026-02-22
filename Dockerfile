@@ -1,33 +1,29 @@
-# Build stage
-FROM node:20-alpine AS build
+# ── Build stage ───────────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Verify Node.js version
-RUN node --version
-
-# Install deps
 COPY package*.json ./
-RUN npm install
+# npm install works with or without a lockfile — no npm ci
+RUN npm install --omit=dev --no-audit --no-fund --ignore-scripts
 
-# Copy source
 COPY . .
+# Transpile/bundle if a build script exists, otherwise no-op
+RUN npm run build --if-present
 
-# Build Next.js app
-RUN npm run build
-
-# Runtime stage
+# ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM node:20-alpine
 WORKDIR /app
 
-# Verify Node.js version
-RUN node --version
+# Non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Copy only what we need
-COPY --from=build /app/package*.json ./
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/public ./public
+# Copy entire app from builder — works whether or not a dist/ folder was created
+COPY --chown=appuser:appgroup --from=builder /app ./
 
+USER appuser
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+CMD ["npm", "start"]
