@@ -2,6 +2,9 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
+# Verify Node.js version
+RUN node --version
+
 # Install deps
 COPY package*.json ./
 RUN npm install
@@ -15,6 +18,9 @@ RUN npm run build
 # Runtime stage
 FROM node:20-alpine
 WORKDIR /app
+
+# Verify Node.js version
+RUN node --version
 
 # Copy only what we need
 COPY --from=build /app/package*.json ./

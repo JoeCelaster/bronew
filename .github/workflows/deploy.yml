@@ -17,7 +17,9 @@ jobs:
         run: chmod +x scripts/*.sh
 
       - name: Build Docker image
-        run: docker build -t bronew:latest .
+        run: |
+          docker build -t bronew:latest .
+          docker tag bronew:latest ghcr.io/joecelaster/bronew:latest
 
       # Optional: gated migration step here if you want
 
