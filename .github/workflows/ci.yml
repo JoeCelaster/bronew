@@ -8,19 +8,36 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Optional: cache (keep simple for now; you can enhance later)
-      # - name: Cache deps
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ~/.npm
-      #     key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Run tests
-        run: npm test
+      - name: Build
+        run: npm run build
+
+      - name: Start app
+        run: |
+          npm run start &
+          echo $! > app.pid
+
+      - name: Wait for server
+        run: sleep 10
+
+      - name: Smoke test (ping /)
+        run: |
+          curl -f http://localhost:3000 || (echo "App did not respond" && exit 1)
+
+      - name: Stop app
+        if: always()
+        run: |
+          kill $(cat app.pid) || true
